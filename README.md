@@ -19,6 +19,8 @@
 前端 Supabase 环境变量模板：`apps/web/.env.local.example`
 Vercel 环境变量模板：`vercel-env.example.txt`
 
+部署时推荐在 Vercel 中将 `Root Directory` 直接设置为 `apps/web`。
+
 Supabase 建表 SQL：`supabase/schema.sql`
 
 ## Supabase Auth
