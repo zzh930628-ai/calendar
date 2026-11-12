@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>任务安排工作台 - 页面原型</title>
+    <style>
+      :root {
+        --bg: #eef4f2;
+        --panel: rgba(255, 255, 255, 0.9);
+        --panel-strong: #ffffff;
+        --line: #dde7e3;
+        --text: #1d2a24;
+        --muted: #72827b;
+        --brand: #1b7f5b;
+        --brand-soft: #dff3eb;
+        --blue-soft: #e5f1ff;
+        --orange-soft: #fff1df;
+        --red-soft: #ffe8e8;
+        --purple-soft: #f1e8ff;
+        --shadow: 0 18px 40px rgba(28, 55, 45, 0.08);
+        --radius: 20px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+          "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, #d7efe5 0, transparent 32%),
+          linear-gradient(180deg, #edf5f1 0%, #f7fbf9 100%);
+      }
+
+      .app-shell {
+        display: grid;
+        grid-template-columns: 96px minmax(960px, 1fr);
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        background: linear-gradient(180deg, #1d5f49 0%, #103d31 100%);
+        color: #fff;
+        padding: 22px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        font-weight: 700;
+        padding: 8px 10px;
+      }
+
+      .brand-logo {
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.16);
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+      }
+
+      .nav {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .nav-item {
+        border-radius: 16px;
+        padding: 12px 10px;
+        color: rgba(255, 255, 255, 0.88);
+        background: transparent;
+        font-size: 12px;
+        text-align: center;
+        line-height: 1.4;
+      }
+
+      .nav-item.active {
+        background: rgba(255, 255, 255, 0.14);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      }
+
+      .sidebar-foot {
+        margin-top: auto;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 18px;
+        font-size: 12px;
+        line-height: 1.7;
+        color: rgba(255, 255, 255, 0.72);
+      }
+
+      .content {
+        padding: 22px;
+      }
+
+      .workspace {
+        background: rgba(255, 255, 255, 0.56);
+        border: 1px solid rgba(255, 255, 255, 0.58);
+        box-shadow: var(--shadow);
+        border-radius: 28px;
+        padding: 22px;
+        backdrop-filter: blur(16px);
+      }
+
+      .topbar {
+        display: grid;
+        grid-template-columns: 1.2fr 1.6fr auto auto;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+
+      .headline h1 {
+        margin: 0;
+        font-size: 34px;
+        line-height: 1.1;
+      }
+
+      .headline p {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .search,
+      .top-chip,
+      .profile {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        height: 52px;
+        display: flex;
+        align-items: center;
+        padding: 0 16px;
+      }
+
+      .search {
+        color: #8b9993;
+      }
+
+      .top-chip {
+        justify-content: center;
+        gap: 10px;
+        color: #50615a;
+        font-size: 14px;
+      }
+
+      .profile {
+        justify-content: space-between;
+        min-width: 210px;
+      }
+
+      .avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #cfe9dc, #a6d0bd);
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+
+      .stat-card {
+        border-radius: 20px;
+        padding: 18px;
+        background: var(--panel-strong);
+        border: 1px solid var(--line);
+        min-height: 122px;
+      }
+
+      .stat-card.green {
+        background: linear-gradient(180deg, #f8fffb 0%, #eefaf4 100%);
+      }
+
+      .stat-card.blue {
+        background: linear-gradient(180deg, #fafcff 0%, #edf5ff 100%);
+      }
+
+      .stat-card.orange {
+        background: linear-gradient(180deg, #fffdf9 0%, #fff5e7 100%);
+      }
+
+      .stat-card.red {
+        background: linear-gradient(180deg, #fffafb 0%, #fff0f0 100%);
+      }
+
+      .stat-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #51615a;
+        font-size: 15px;
+      }
+
+      .stat-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        font-size: 18px;
+      }
+
+      .green .stat-icon { background: var(--brand-soft); }
+      .blue .stat-icon { background: var(--blue-soft); }
+      .orange .stat-icon { background: var(--orange-soft); }
+      .red .stat-icon { background: var(--red-soft); }
+
+      .stat-value {
+        margin-top: 16px;
+        font-size: 40px;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .stat-meta {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .main-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 2.4fr) minmax(310px, 0.95fr);
+        gap: 18px;
+      }
+
+      .panel {
+        background: var(--panel-strong);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        box-shadow: 0 8px 24px rgba(30, 50, 40, 0.04);
+      }
+
+      .panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 20px 12px;
+      }
+
+      .panel-title {
+        font-size: 22px;
+        font-weight: 750;
+      }
+
+      .panel-subtitle {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      .panel-actions {
+        display: flex;
+        gap: 10px;
+        color: #5e6d67;
+        font-size: 13px;
+      }
+
+      .ghost-btn {
+        border: 1px solid var(--line);
+        background: #f9fcfb;
+        border-radius: 12px;
+        padding: 8px 12px;
+      }
+
+      .calendar-board {
+        padding: 0 16px 18px;
+      }
+
+      .calendar-header {
+        display: grid;
+        grid-template-columns: 74px repeat(7, minmax(0, 1fr));
+        border-bottom: 1px solid var(--line);
+      }
+
+      .calendar-header div {
+        padding: 12px 10px;
+        font-size: 13px;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      .calendar-body {
+        display: grid;
+        grid-template-columns: 74px repeat(7, minmax(0, 1fr));
+      }
+
+      .time-col {
+        border-right: 1px solid var(--line);
+      }
+
+      .time-slot,
+      .day-slot {
+        height: 68px;
+        border-bottom: 1px solid #edf3f0;
+      }
+
+      .time-slot {
+        padding: 8px 8px 0 0;
+        text-align: right;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .day-col {
+        position: relative;
+        border-right: 1px solid #edf3f0;
+      }
+
+      .day-col.today {
+        background: linear-gradient(180deg, rgba(223, 243, 235, 0.4), rgba(223, 243, 235, 0));
+      }
+
+      .event {
+        position: absolute;
+        left: 8px;
+        right: 8px;
+        border-radius: 14px;
+        padding: 10px 10px 8px;
+        font-size: 12px;
+        line-height: 1.45;
+        box-shadow: 0 8px 16px rgba(31, 79, 58, 0.08);
+        overflow: hidden;
+      }
+
+      .event.green { background: #e6f6ee; border-left: 4px solid #34a06c; }
+      .event.blue { background: #e9f2ff; border-left: 4px solid #5091f2; }
+      .event.orange { background: #fff0dc; border-left: 4px solid #f1a13a; }
+      .event.red { background: #ffe8e7; border-left: 4px solid #e16b65; }
+
+      .event strong {
+        display: block;
+        font-size: 12px;
+        margin-bottom: 3px;
+      }
+
+      .event small {
+        color: #5e6b65;
+      }
+
+      .event.e1 { top: 80px; height: 84px; }
+      .event.e2 { top: 148px; height: 100px; }
+      .event.e3 { top: 215px; height: 76px; }
+      .event.e4 { top: 112px; height: 74px; }
+      .event.e5 { top: 256px; height: 76px; }
+      .event.e6 { top: 340px; height: 82px; }
+      .event.e7 { top: 192px; height: 74px; }
+      .event.e8 { top: 308px; height: 78px; }
+
+      .right-stack {
+        display: grid;
+        gap: 18px;
+      }
+
+      .mini-calendar {
+        padding: 0 18px 18px;
+      }
+
+      .month-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px;
+        font-size: 12px;
+        color: #5d6a64;
+      }
+
+      .month-grid span {
+        text-align: center;
+        padding: 7px 0;
+        border-radius: 10px;
+      }
+
+      .month-grid .muted {
+        color: #b4c0bb;
+      }
+
+      .month-grid .selected {
+        background: var(--brand-soft);
+        color: var(--brand);
+        font-weight: 700;
+      }
+
+      .timeline,
+      .progress-list,
+      .tag-cloud,
+      .log-table {
+        padding: 0 18px 18px;
+      }
+
+      .timeline-item,
+      .progress-item {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #eef3f1;
+      }
+
+      .timeline-item:last-child,
+      .progress-item:last-child {
+        border-bottom: 0;
+      }
+
+      .time {
+        width: 54px;
+        font-size: 12px;
+        color: var(--muted);
+        padding-top: 3px;
+      }
+
+      .item-main {
+        flex: 1;
+      }
+
+      .item-main strong {
+        display: block;
+        font-size: 14px;
+      }
+
+      .item-main span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .state {
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .state.running { background: #e3f6ec; color: #1b7f5b; }
+      .state.waiting { background: #e9f2ff; color: #2b6ed1; }
+      .state.pending { background: #fff1df; color: #b57516; }
+
+      .progress-bar {
+        margin-top: 8px;
+        height: 8px;
+        background: #edf3f0;
+        border-radius: 999px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        border-radius: inherit;
+      }
+
+      .progress-fill.green { background: linear-gradient(90deg, #38b075, #66cb9a); }
+      .progress-fill.blue { background: linear-gradient(90deg, #4b91f4, #7db1ff); }
+      .progress-fill.orange { background: linear-gradient(90deg, #f0a23d, #f6c16d); }
+
+      .bottom-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.7fr) minmax(300px, 0.9fr);
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+
+      th,
+      td {
+        padding: 12px 10px;
+        text-align: left;
+        border-bottom: 1px solid #edf3f0;
+      }
+
+      th {
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .pill.green { background: #e3f6ec; color: #1b7f5b; }
+      .pill.blue { background: #e9f2ff; color: #2b6ed1; }
+      .pill.orange { background: #fff1df; color: #b57516; }
+
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .tag {
+        border-radius: 999px;
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .tag.green { background: #e5f6ee; color: #1f7d5c; }
+      .tag.red { background: #ffe9e7; color: #ca6259; }
+      .tag.blue { background: #e8f1ff; color: #457fd7; }
+      .tag.orange { background: #fff0dc; color: #c98a25; }
+      .tag.purple { background: #f1e9ff; color: #8d60d8; }
+
+      .log-table table td,
+      .log-table table th {
+        font-size: 12px;
+      }
+
+      @media (max-width: 1360px) {
+        .app-shell {
+          grid-template-columns: 84px 1fr;
+        }
+
+        .main-grid,
+        .bottom-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 1100px) {
+        .app-shell {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          display: none;
+        }
+
+        .topbar,
+        .stats {
+          grid-template-columns: 1fr;
+        }
+
+        .content {
+          padding: 14px;
+        }
+
+        .workspace {
+          padding: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-logo">任</div>
+          <div>任务管理</div>
+        </div>
+        <nav class="nav">
+          <div class="nav-item">工作总览</div>
+          <div class="nav-item active">任务管理</div>
+          <div class="nav-item">项目管理</div>
+          <div class="nav-item">日程安排</div>
+          <div class="nav-item">标签分类</div>
+          <div class="nav-item">冲突与提醒</div>
+          <div class="nav-item">历史记录</div>
+          <div class="nav-item">系统设置</div>
+        </nav>
+        <div class="sidebar-foot">
+          让工作更有条理<br />
+          把重要的事放到位
+        </div>
+      </aside>
+
+      <main class="content">
+        <div class="workspace">
+          <section class="topbar">
+            <div class="headline">
+              <h1>任务安排工作台</h1>
+              <p>事情再多，也能把重要事项安排清楚。</p>
+            </div>
+            <div class="search">搜索任务、项目、标签或负责人...</div>
+            <div class="top-chip">2026 年 11 月 11 日 周三</div>
+            <div class="profile">
+              <span>个人版 · 双日历已连接</span>
+              <div class="avatar"></div>
+            </div>
+          </section>
+
+          <section class="stats">
+            <div class="stat-card green">
+              <div class="stat-title"><div class="stat-icon">📅</div>今日待办</div>
+              <div class="stat-value">7</div>
+              <div class="stat-meta">较昨日 +2</div>
+            </div>
+            <div class="stat-card blue">
+              <div class="stat-title"><div class="stat-icon">▶</div>进行中任务</div>
+              <div class="stat-value">12</div>
+              <div class="stat-meta">当前执行中</div>
+            </div>
+            <div class="stat-card orange">
+              <div class="stat-title"><div class="stat-icon">!</div>逾期任务</div>
+              <div class="stat-value">2</div>
+              <div class="stat-meta">需要优先处理</div>
+            </div>
+            <div class="stat-card red">
+              <div class="stat-title"><div class="stat-icon">⚡</div>时间冲突</div>
+              <div class="stat-value">3</div>
+              <div class="stat-meta">待调整同步</div>
+            </div>
+          </section>
+
+          <section class="main-grid">
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-title">本周日程</div>
+                  <div class="panel-subtitle">2026 年 11 月 9 日 - 2026 年 11 月 15 日</div>
+                </div>
+                <div class="panel-actions">
+                  <div class="ghost-btn">今天</div>
+                  <div class="ghost-btn">周视图</div>
+                </div>
+              </div>
+              <div class="calendar-board">
+                <div class="calendar-header">
+                  <div></div>
+                  <div>11/9<br />周日</div>
+                  <div>11/10<br />周一</div>
+                  <div>11/11<br />周二</div>
+                  <div>11/12<br />周三</div>
+                  <div>11/13<br />周四</div>
+                  <div>11/14<br />周五</div>
+                  <div>11/15<br />周六</div>
+                </div>
+                <div class="calendar-body">
+                  <div class="time-col">
+                    <div class="time-slot">08:00</div>
+                    <div class="time-slot">09:00</div>
+                    <div class="time-slot">10:00</div>
+                    <div class="time-slot">11:00</div>
+                    <div class="time-slot">12:00</div>
+                    <div class="time-slot">13:00</div>
+                    <div class="time-slot">14:00</div>
+                    <div class="time-slot">15:00</div>
+                  </div>
+
+                  <div class="day-col">
+                    <div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div>
+                    <div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div>
+                    <div class="event green e1"><strong>客户沟通整理</strong><small>09:00 - 10:00 · 小B</small></div>
+                    <div class="event green e7"><strong>方案讨论</strong><small>14:00 - 15:00 · 小A</small></div>
+                  </div>
+
+                  <div class="day-col">
+                    <div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div>
+                    <div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div>
+                    <div class="event blue e2"><strong>产品方案设计</strong><small>10:00 - 11:30 · 小C</small></div>
+                    <div class="event orange e8"><strong>项目复盘</strong><small>16:00 - 17:00 · 小A</small></div>
+                  </div>
+
+                  <div class="day-col today">
+                    <div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div>
+                    <div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div>
+                    <div class="event green e1"><strong>客户沟通</strong><small>09:30 - 10:30 · 小B</small></div>
+                    <div class="event red e5"><strong>团队周会</strong><small>14:00 - 15:00 · 冲突提醒</small></div>
+                    <div class="event blue e8"><strong>工作总结</strong><small>17:00 - 18:00 · 小A</small></div>
+                  </div>
+
+                  <div class="day-col">
+                    <div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div>
+                    <div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div>
+                    <div class="event blue e4"><strong>方案评审</strong><small>11:00 - 12:00 · 小C</small></div>
+                    <div class="event green e6"><strong>客户反馈</strong><small>15:00 - 16:00 · 小B</small></div>
+                  </div>
+
+                  <div class="day-col">
+                    <div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div>
+                    <div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div>
+                    <div class="event orange e3"><strong>项目交付</strong><small>09:30 - 11:00 · 小C</small></div>
+                  </div>
+
+                  <div class="day-col">
+                    <div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div>
+                    <div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div>
+                    <div class="event blue e5"><strong>周报总结</strong><small>14:00 - 15:00 · 小A</small></div>
+                  </div>
+
+                  <div class="day-col">
+                    <div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div>
+                    <div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div><div class="day-slot"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="right-stack">
+              <div class="panel">
+                <div class="panel-head">
+                  <div>
+                    <div class="panel-title">2026 年 11 月</div>
+                    <div class="panel-subtitle">双日历同步中</div>
+                  </div>
+                  <div class="panel-actions">
+                    <div class="ghost-btn">月历</div>
+                  </div>
+                </div>
+                <div class="mini-calendar">
+                  <div class="month-grid">
+                    <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+                    <span class="muted">26</span><span class="muted">27</span><span class="muted">28</span><span class="muted">29</span><span class="muted">30</span><span class="muted">31</span><span>1</span>
+                    <span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span>
+                    <span>9</span><span>10</span><span class="selected">11</span><span>12</span><span>13</span><span>14</span><span>15</span>
+                    <span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span>
+                    <span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span>
+                    <span>30</span><span class="muted">1</span><span class="muted">2</span><span class="muted">3</span><span class="muted">4</span><span class="muted">5</span><span class="muted">6</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-head">
+                  <div>
+                    <div class="panel-title">今日时间线</div>
+                    <div class="panel-subtitle">11 月 11 日 星期三</div>
+                  </div>
+                </div>
+                <div class="timeline">
+                  <div class="timeline-item">
+                    <div class="time">09:30</div>
+                    <div class="item-main"><strong>客户沟通</strong><span>小B · Google Calendar</span></div>
+                    <div class="state running">进行中</div>
+                  </div>
+                  <div class="timeline-item">
+                    <div class="time">10:30</div>
+                    <div class="item-main"><strong>方案评审</strong><span>小C · 平台内任务</span></div>
+                    <div class="state waiting">待开始</div>
+                  </div>
+                  <div class="timeline-item">
+                    <div class="time">14:00</div>
+                    <div class="item-main"><strong>团队周会</strong><span>钉钉日历 · 存在冲突</span></div>
+                    <div class="state pending">待确认</div>
+                  </div>
+                  <div class="timeline-item">
+                    <div class="time">15:30</div>
+                    <div class="item-main"><strong>资料整理</strong><span>本地任务</span></div>
+                    <div class="state waiting">待开始</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="bottom-grid">
+            <div>
+              <div class="panel" style="margin-bottom: 18px;">
+                <div class="panel-head">
+                  <div>
+                    <div class="panel-title">日程清单（11 月 11 日）</div>
+                    <div class="panel-subtitle">平台任务与外部日历统一展示</div>
+                  </div>
+                  <div class="panel-actions">
+                    <div class="ghost-btn">查看全部</div>
+                  </div>
+                </div>
+                <div class="log-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>任务标题</th>
+                        <th>所属项目</th>
+                        <th>负责人</th>
+                        <th>截止时间</th>
+                        <th>状态</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>1</td>
+                        <td>客户沟通</td>
+                        <td>项目 A</td>
+                        <td>小B</td>
+                        <td>11:00</td>
+                        <td><span class="pill green">进行中</span></td>
+                      </tr>
+                      <tr>
+                        <td>2</td>
+                        <td>方案评审</td>
+                        <td>项目 A</td>
+                        <td>小C</td>
+                        <td>12:00</td>
+                        <td><span class="pill blue">待开始</span></td>
+                      </tr>
+                      <tr>
+                        <td>3</td>
+                        <td>团队周会</td>
+                        <td>项目 B</td>
+                        <td>小A</td>
+                        <td>15:00</td>
+                        <td><span class="pill orange">待确认</span></td>
+                      </tr>
+                      <tr>
+                        <td>4</td>
+                        <td>资料整理</td>
+                        <td>项目 B</td>
+                        <td>小A</td>
+                        <td>16:00</td>
+                        <td><span class="pill blue">待开始</span></td>
+                      </tr>
+                      <tr>
+                        <td>5</td>
+                        <td>工作进度汇总</td>
+                        <td>项目 A</td>
+                        <td>小A</td>
+                        <td>18:00</td>
+                        <td><span class="pill blue">待开始</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-head">
+                  <div>
+                    <div class="panel-title">最近调整记录</div>
+                    <div class="panel-subtitle">展示最近一次改动来源与原因</div>
+                  </div>
+                  <div class="panel-actions">
+                    <div class="ghost-btn">同步日志</div>
+                  </div>
+                </div>
+                <div class="log-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>时间</th>
+                        <th>任务名称</th>
+                        <th>调整内容</th>
+                        <th>原时间</th>
+                        <th>新时间</th>
+                        <th>调整原因</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>11-11 09:20</td>
+                        <td>客户沟通</td>
+                        <td>调整时间</td>
+                        <td>09:00</td>
+                        <td>10:00</td>
+                        <td>解决时间冲突</td>
+                      </tr>
+                      <tr>
+                        <td>11-11 08:50</td>
+                        <td>方案评审</td>
+                        <td>修改状态</td>
+                        <td>待开始</td>
+                        <td>进行中</td>
+                        <td>开始执行</td>
+                      </tr>
+                      <tr>
+                        <td>11-10 16:30</td>
+                        <td>资料整理</td>
+                        <td>添加标签</td>
+                        <td>无</td>
+                        <td>文档整理</td>
+                        <td>完成分类</td>
+                      </tr>
+                      <tr>
+                        <td>11-10 14:20</td>
+                        <td>团队周会</td>
+                        <td>调整负责人</td>
+                        <td>小A</td>
+                        <td>小B</td>
+                        <td>人员调整</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="right-stack">
+              <div class="panel">
+                <div class="panel-head">
+                  <div>
+                    <div class="panel-title">待处理提醒</div>
+                    <div class="panel-subtitle">优先展示高影响事项</div>
+                  </div>
+                </div>
+                <div class="progress-list">
+                  <div class="progress-item">
+                    <div class="item-main">
+                      <strong>时间交付项目</strong>
+                      <span>3 / 4 项已推进</span>
+                      <div class="progress-bar"><div class="progress-fill green" style="width: 75%;"></div></div>
+                    </div>
+                    <div>75%</div>
+                  </div>
+                  <div class="progress-item">
+                    <div class="item-main">
+                      <strong>内部任务项目</strong>
+                      <span>3 / 5 项需要排期</span>
+                      <div class="progress-bar"><div class="progress-fill blue" style="width: 60%;"></div></div>
+                    </div>
+                    <div>60%</div>
+                  </div>
+                  <div class="progress-item">
+                    <div class="item-main">
+                      <strong>即将到期提醒</strong>
+                      <span>2 / 5 项需优先处理</span>
+                      <div class="progress-bar"><div class="progress-fill orange" style="width: 40%;"></div></div>
+                    </div>
+                    <div>40%</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-head">
+                  <div>
+                    <div class="panel-title">标签分类</div>
+                    <div class="panel-subtitle">支持任务筛选和颜色映射</div>
+                  </div>
+                </div>
+                <div class="tag-cloud">
+                  <div class="tags">
+                    <div class="tag green">客户相关 12</div>
+                    <div class="tag red">重要紧急 8</div>
+                    <div class="tag blue">会议相关 6</div>
+                    <div class="tag purple">产品需求 5</div>
+                    <div class="tag orange">文档整理 4</div>
+                    <div class="tag green">后续跟进 3</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+
+# 如果你在 Supabase Auth 中启用了 Google Provider，这两个通常填在 Supabase 后台即可；
+# 只有当你后续自己写 Google Calendar OAuth 路由时，才需要再放到 Vercel。
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret

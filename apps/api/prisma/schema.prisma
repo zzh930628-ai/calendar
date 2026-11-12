@@ -1,0 +1,251 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TaskStatus {
+  TODO
+  SCHEDULED
+  IN_PROGRESS
+  DONE
+  OVERDUE
+  ARCHIVED
+}
+
+enum EventStatus {
+  CONFIRMED
+  TENTATIVE
+  CANCELLED
+}
+
+enum EventOrigin {
+  LOCAL
+  GOOGLE
+  DINGTALK
+}
+
+enum ConnectionProvider {
+  GOOGLE
+  DINGTALK
+}
+
+enum ConnectionStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+  ERROR
+}
+
+enum SyncStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  CONFLICT
+}
+
+enum ConflictType {
+  TIME_OVERLAP
+  VERSION_CONFLICT
+  DELETED_MISMATCH
+}
+
+enum ResolutionStatus {
+  OPEN
+  RESOLVED
+  IGNORED
+}
+
+model User {
+  id                  String               @id @default(uuid())
+  email               String               @unique
+  name                String
+  avatarUrl           String?
+  timezone            String               @default("Asia/Shanghai")
+  locale              String               @default("zh-CN")
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  tasks               Task[]
+  scheduleEvents      ScheduleEvent[]
+  calendarConnections CalendarConnection[]
+  calendars           Calendar[]
+  externalBindings    ExternalEventBinding[]
+  syncCursors         SyncCursor[]
+  syncLogs            SyncLog[]
+  conflictRecords     ConflictRecord[]
+}
+
+model Task {
+  id               String         @id @default(uuid())
+  userId           String
+  title            String
+  description      String?
+  priority         TaskPriority   @default(MEDIUM)
+  status           TaskStatus     @default(TODO)
+  source           String         @default("local")
+  dueAt            DateTime?
+  estimatedMinutes Int?
+  tagNames         Json?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scheduleEvents   ScheduleEvent[]
+
+  @@index([userId, status])
+}
+
+model ScheduleEvent {
+  id                String                 @id @default(uuid())
+  userId            String
+  taskId            String?
+  title             String
+  description       String?
+  startAt           DateTime
+  endAt             DateTime
+  allDay            Boolean                @default(false)
+  timezone          String                 @default("Asia/Shanghai")
+  location          String?
+  reminders         Json?
+  status            EventStatus            @default(CONFIRMED)
+  origin            EventOrigin            @default(LOCAL)
+  lastModifiedBy    String?
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  deletedAt         DateTime?
+  user              User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task              Task?                  @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  externalBindings  ExternalEventBinding[]
+  conflictRecords   ConflictRecord[]
+
+  @@index([userId, startAt, endAt])
+}
+
+model CalendarConnection {
+  id                String        @id @default(uuid())
+  userId            String
+  provider          ConnectionProvider
+  providerAccountId String
+  status            ConnectionStatus @default(ACTIVE)
+  accessToken       String?
+  refreshToken      String?
+  tokenExpiresAt    DateTime?
+  scope             String?
+  meta              Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  calendars         Calendar[]
+
+  @@index([userId, provider])
+  @@unique([userId, provider])
+}
+
+model Calendar {
+  id                 String               @id @default(uuid())
+  userId             String
+  connectionId       String
+  provider           ConnectionProvider
+  providerCalendarId String
+  name               String
+  color              String?
+  isPrimary          Boolean              @default(false)
+  isSelected         Boolean              @default(true)
+  readOnly           Boolean              @default(false)
+  syncEnabled        Boolean              @default(true)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  connection         CalendarConnection   @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  externalBindings   ExternalEventBinding[]
+  syncCursors        SyncCursor[]
+
+  @@index([userId, provider])
+  @@unique([connectionId, providerCalendarId])
+}
+
+model ExternalEventBinding {
+  id                String        @id @default(uuid())
+  userId            String
+  scheduleEventId   String
+  provider          ConnectionProvider
+  calendarId        String
+  providerEventId   String
+  providerEtag      String?
+  providerUpdatedAt DateTime?
+  syncTokenSnapshot String?
+  lastSyncAt        DateTime?
+  syncStatus        SyncStatus    @default(PENDING)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scheduleEvent     ScheduleEvent @relation(fields: [scheduleEventId], references: [id], onDelete: Cascade)
+  calendar          Calendar      @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerEventId])
+}
+
+model SyncCursor {
+  id             String       @id @default(uuid())
+  userId         String
+  provider       ConnectionProvider
+  calendarId     String
+  cursorType     String
+  cursorValue    String
+  expiresAt      DateTime?
+  meta           Json?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  calendar       Calendar     @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+
+  @@index([userId, provider])
+  @@unique([calendarId, cursorType])
+}
+
+model SyncLog {
+  id               String       @id @default(uuid())
+  userId           String
+  provider         ConnectionProvider
+  direction        String
+  action           String
+  resourceType     String
+  resourceLocalId  String?
+  resourceRemoteId String?
+  status           SyncStatus
+  errorCode        String?
+  errorMessage     String?
+  payload          Json?
+  createdAt        DateTime     @default(now())
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, provider, status])
+}
+
+model ConflictRecord {
+  id               String           @id @default(uuid())
+  userId           String
+  scheduleEventId  String
+  conflictType     ConflictType
+  provider         ConnectionProvider?
+  resolutionStatus ResolutionStatus @default(OPEN)
+  localSnapshot    Json?
+  remoteSnapshot   Json?
+  resolvedBy       String?
+  resolvedAt       DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scheduleEvent    ScheduleEvent    @relation(fields: [scheduleEventId], references: [id], onDelete: Cascade)
+
+  @@index([userId, resolutionStatus])
+}
